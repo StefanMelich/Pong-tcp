@@ -16,18 +16,12 @@ public:
 	~Ball();
 	int getX();
 	int getY();
+	DIRECTION getDirection();
 	void rndLeft();
 	void rndRight();
 	void changeDirection(DIRECTION direction);
 	void move();
 	void wallChangeDir();
-
-	friend ostream & operator<<(ostream & o, Ball ball)
-	{
-		o << "Ball [" << ball.getX() << ", " << ball.getY() << "]" << endl;
-		return o;
-	}
-
 };
 
 inline Ball::Ball(int x, int y)
@@ -47,6 +41,12 @@ inline int Ball::getY()
 {
 	return _y;
 }
+
+inline DIRECTION Ball::getDirection()
+{
+	return _direction;
+}
+
 
 inline void Ball::rndLeft()
 {
@@ -96,6 +96,7 @@ inline void Ball::move()
 		break;
 	case RIGHT:
 		_x++;
+		break;
 	case DOWN_RIGHT:
 		_x++;
 		_y++;
@@ -107,5 +108,21 @@ inline void Ball::move()
 
 inline void Ball::wallChangeDir()
 {
-	this->_y -= this->_y;
+	switch (_direction)
+	{
+	case UP_LEFT:
+		_direction = DOWN_LEFT;
+		break;
+	case UP_RIGHT:
+		_direction = DOWN_RIGHT;
+		break;
+	case DOWN_LEFT:
+		_direction = UP_LEFT;
+		break;
+	case DOWN_RIGHT:
+		_direction = UP_RIGHT;
+		break;
+	default:
+		break;
+	}	
 }

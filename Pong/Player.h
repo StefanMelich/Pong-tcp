@@ -10,17 +10,13 @@ private:
 
 public:
 	Player(int posX, int posY);
+	~Player();
 	int getX();
 	int getY();
 
 	void moveUP();
 	void moveDOWN();
 
-	friend ostream & operator<<(ostream & o, Player p)
-	{
-		o << "Player [" << p.getX() << ", " << p.getY() << "]" << endl;
-		return o;
-	}
 };
 
 inline Player::Player(int posX, int posY)
@@ -28,6 +24,8 @@ inline Player::Player(int posX, int posY)
 	x = posX;
 	y = posY;
 }
+
+inline Player::~Player() {}
 
 inline int Player::getX()
 {

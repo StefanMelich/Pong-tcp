@@ -1,8 +1,11 @@
 #pragma once
 #include <iostream>
 #include <conio.h>
+//#include <unistd.h> posix
+#include <Windows.h>
 #include "Player.h"
-#include "Ball.h"
+#include "Ball.h" 
+
 
 using namespace std;
 
@@ -35,6 +38,7 @@ inline GameBoard::GameBoard(int w, int h)
 	down = 's';
 	quit = false;
 	ball = new Ball(width / 2, height / 2);
+	ball->changeDirection(LEFT);
 	player1 = new Player(1, (height / 2) - 3);
 	player2 = new Player(width - 2, (height / 2) - 3);
 }
@@ -126,43 +130,55 @@ inline void GameBoard::input()
 		{
 			quit = true;
 		}
+
+		// debug
+		if (current == 'u')
+			if (player2->getY() > 0)
+				player2->moveUP();
+
+		if (current == 'j')
+			if (player2->getY() + 4 < height)
+				player2->moveDOWN();
 	}
 }
 
 inline void GameBoard::collisionDetection()
 {
-	int ballX = ball->getX();
-	int ballY = ball->getY();
-	int p1X = player1->getX();
-	int p1Y = player1->getY();
+	int ballx = ball->getX();
+	int bally = ball->getY();
+	int player1x = player1->getX();
+	int player2x = player2->getX();
+	int player1y = player1->getY();
+	int player2y = player2->getY();
 
 	// SERVER - left player 
 	for (int i = 0; i < 4; i++)
-	{
-		if (ballX == p1X + 1)
-		{
-			if (ballY == p1Y + i)
-			{
+		if (ballx == player1x + 1)
+			if (bally == player1y + i)
 				ball->rndRight();
-			}
-		}
-	}
 
 	// CLIENT - right player
 	// TODO: tcp 
+	//right paddle
+	for (int i = 0; i < 4; i++)
+		if (ballx == player2x - 1)
+			if (bally == player2y + i)
+				ball->rndLeft();
 
 	// ball hit wall bounce
-	if (ballY == height - 1 || ballY == 0)
-	{
+	if (bally == 0)
 		ball->wallChangeDir();
-	}
+
+	if (bally == height - 1)
+		ball->wallChangeDir();
 
 	// ball hit wall game over
-	//if (ballX == width - 1)
-
-
-	//if (ballX == 0)
-
+	if (ballx == width - 1)
+		quit = true;
+	    
+	if (ballx == 0)
+		quit = true;
+	
 }
 
 inline void GameBoard::run()
@@ -172,6 +188,8 @@ inline void GameBoard::run()
 		draw();
 		input();
 		collisionDetection();
+		Sleep(50); // windows
+		//usleep(500); // linux
 	}
 }
 
