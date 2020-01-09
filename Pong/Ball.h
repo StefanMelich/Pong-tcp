@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "heap_monitor.h"
 using namespace std;
 
 enum DIRECTION { LEFT, RIGHT, UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT };
@@ -16,6 +17,8 @@ public:
 	~Ball();
 	int getX();
 	int getY();
+	void setX(int x);
+	void setY(int y);
 	DIRECTION getDirection();
 	void rndLeft();
 	void rndRight();
@@ -40,6 +43,16 @@ inline int Ball::getX()
 inline int Ball::getY()
 {
 	return _y;
+}
+
+inline void Ball::setX(int x)
+{
+	_x = x;
+}
+
+inline void Ball::setY(int y)
+{
+	_y = y;
 }
 
 inline DIRECTION Ball::getDirection()

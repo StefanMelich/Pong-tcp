@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include "Player.h"
 #include "Ball.h" 
-
+#include "heap_monitor.h"
 
 using namespace std;
 
@@ -13,29 +13,39 @@ class GameBoard
 {
 private:
 	int width, height;
-	char up, down;
 	bool quit;
 	Ball * ball;
 	Player * player1;
 	Player * player2;
 
 	bool canDrawPlayer(int actualX, int actualY, int x, int y);
+	
 
 public:
 	GameBoard(int w, int h);
 	~GameBoard();
+	bool isGameOver() { return quit; }
+	int getBallX() { return ball->getX();  }
+	int getBallY() { return ball->getY(); }
+	int getPlayer1X() { return player1->getX(); }
+	int getPlayer1Y() { return player1->getY(); }
+	int getPlayer2X() { return player2->getX(); }
+	int getPlayer2Y() { return player2->getY(); }
+	void setPlayer1Y(int y) { this->player1->setY(y); }
+	void setPlayer2Y(int y) { this->player2->setY(y); }
+	void setBallX(int x) { this->ball->setX(x); }
+	void setBallY(int y) { this->ball->setY(y); }
 	void draw();
 	void input();
 	void collisionDetection();
 	void run();
+	bool wallGameOver();
 };
 
 inline GameBoard::GameBoard(int w, int h)
 {
 	width = w;
 	height = h;
-	up = 'w';
-	down = 's';
 	quit = false;
 	ball = new Ball(width / 2, height / 2);
 	ball->changeDirection(LEFT);
@@ -45,7 +55,9 @@ inline GameBoard::GameBoard(int w, int h)
 
 inline GameBoard::~GameBoard()
 {
-	delete ball, player1, player2;
+	delete ball;
+	delete player1;
+	delete player2;
 }
 
 inline void GameBoard::draw()
@@ -104,34 +116,23 @@ inline void GameBoard::draw()
 
 inline void GameBoard::input()
 {
-	ball->move();
-
 	if (_kbhit())
 	{
 		char current = _getch();
 
-		if (current == up)
-		{
-			if (player1->getY() > 0)
-			{
-				player1->moveUP();
-			}
-		}
-
-		if (current == down)
-		{
-			if (player1->getY() + 4 < height)
-			{
-				player1->moveDOWN();
-			}
-		}
-
 		if (current == 'q')
-		{
 			quit = true;
-		}
 
-		// debug
+		// player1
+		if (current == 'w')
+			if (player1->getY() > 0)
+				player1->moveUP();
+
+		if (current == 's')
+			if (player1->getY() + 4 < height)
+				player1->moveDOWN();
+
+		// player2
 		if (current == 'u')
 			if (player2->getY() > 0)
 				player2->moveUP();
@@ -144,6 +145,8 @@ inline void GameBoard::input()
 
 inline void GameBoard::collisionDetection()
 {
+	ball->move();
+
 	int ballx = ball->getX();
 	int bally = ball->getY();
 	int player1x = player1->getX();
@@ -158,8 +161,6 @@ inline void GameBoard::collisionDetection()
 				ball->rndRight();
 
 	// CLIENT - right player
-	// TODO: tcp 
-	//right paddle
 	for (int i = 0; i < 4; i++)
 		if (ballx == player2x - 1)
 			if (bally == player2y + i)
@@ -175,11 +176,22 @@ inline void GameBoard::collisionDetection()
 	// ball hit wall game over
 	if (ballx == width - 1)
 		quit = true;
-	    
+
 	if (ballx == 0)
 		quit = true;
-	
 }
+
+inline bool GameBoard::wallGameOver()
+{
+	if (ball->getX() == width - 1)
+		return true;
+
+	if (ball->getX() == 0)
+		return true;
+
+	return false;
+}
+
 
 inline void GameBoard::run()
 {
@@ -189,7 +201,7 @@ inline void GameBoard::run()
 		input();
 		collisionDetection();
 		Sleep(50); // windows
-		//usleep(500); // linux
+		//usleep(50); // linux
 	}
 }
 

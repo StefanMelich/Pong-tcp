@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "heap_monitor.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ public:
 	~Player();
 	int getX();
 	int getY();
+	void setY(int y);
 
 	void moveUP();
 	void moveDOWN();
@@ -35,6 +37,11 @@ inline int Player::getX()
 inline int Player::getY()
 {
 	return y;
+}
+
+inline void Player::setY(int y)
+{
+	this->y = y;
 }
 
 inline void Player::moveUP()
