@@ -14,7 +14,6 @@ private:
 	TcpSocket socket;
 	GameBoard * game;
 	int port;
-	char mode;
 	char dataBuffer[100];
 	size_t received;
 
@@ -51,19 +50,33 @@ inline void Server::Game()
 {
 	game = new GameBoard(40, 20);
 	// na zaciatku posiela server
-	mode = 's';
+
+	Thread drawT(&GameBoard::draw, game);
+	Thread sendT(&Server::SendData, this);
+	Thread receiveT(&Server::ReceiveData, this);
 
 	while(!game->isGameOver())
 	{
-		game->draw();
+		drawT.launch();
 		game->input();
 		game->collisionDetection();
 
-		this->SendData();
-		this->ReceiveData();
+		sendT.launch();
+		receiveT.launch();
 
 		Sleep(100);
 	}
+
+	drawT.wait();
+
+	system("cls");
+	if (game->winner() == "p1")
+		cout << "WINNER" << endl;
+	else if (game->winner() == "p2")
+		cout << "LOSER" << endl;
+	else
+		cout << "DRAW" << endl;
+	
 }
 
 inline void Server::SendData()

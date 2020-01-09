@@ -1,13 +1,15 @@
 #pragma once
 #include <iostream>
 #include <conio.h>
+#include <string>
 //#include <unistd.h> posix
 #include <Windows.h>
+#include <SFML/System.hpp>
 #include "Player.h"
 #include "Ball.h" 
 #include "heap_monitor.h"
 
-using namespace std;
+using namespace sf;
 
 class GameBoard
 {
@@ -17,6 +19,8 @@ private:
 	Ball * ball;
 	Player * player1;
 	Player * player2;
+	Mutex mutex;
+	string win;
 
 	bool canDrawPlayer(int actualX, int actualY, int x, int y);
 	
@@ -38,8 +42,8 @@ public:
 	void draw();
 	void input();
 	void collisionDetection();
-	void run();
 	bool wallGameOver();
+	string winner();
 };
 
 inline GameBoard::GameBoard(int w, int h)
@@ -62,6 +66,8 @@ inline GameBoard::~GameBoard()
 
 inline void GameBoard::draw()
 {
+	mutex.lock();
+
 	system("cls"); // windows
 	//system("clear"); // linux
 
@@ -112,6 +118,8 @@ inline void GameBoard::draw()
 	for (int i = 0; i < width + 2; i++)
 		cout << "\xB2";
 	cout << endl;
+
+	mutex.unlock();
 }
 
 inline void GameBoard::input()
@@ -175,35 +183,43 @@ inline void GameBoard::collisionDetection()
 
 	// ball hit wall game over
 	if (ballx == width - 1)
+	{
 		quit = true;
-
+		win = "p1";
+	}
+		
 	if (ballx == 0)
+	{
 		quit = true;
+		win = "p2";
+	}
 }
 
 inline bool GameBoard::wallGameOver()
 {
 	if (ball->getX() == width - 1)
+	{
+		win = "p1";
 		return true;
-
+	}
+		
 	if (ball->getX() == 0)
+	{
+		win = "p2";
+		return true;
+	}
+
+	if (quit)
 		return true;
 
 	return false;
 }
 
-
-inline void GameBoard::run()
+inline string GameBoard::winner()
 {
-	while(!quit)
-	{
-		draw();
-		input();
-		collisionDetection();
-		Sleep(50); // windows
-		//usleep(50); // linux
-	}
+	return win;
 }
+
 
 inline bool GameBoard::canDrawPlayer(int actualX, int actualY, int x, int y)
 {

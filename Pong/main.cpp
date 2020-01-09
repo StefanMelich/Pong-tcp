@@ -29,6 +29,7 @@ int main()
 		client.Connect();
 		//Client * client = new Client(portNumber);
 		//client->Connect();
+		//delete client;
 	}
 	
 	system("pause");

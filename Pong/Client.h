@@ -53,16 +53,30 @@ inline void Client::Game()
 {
 	game = new GameBoard(40, 20);
 
+	Thread drawT(&GameBoard::draw, game);
+	Thread sendT(&Client::SendData, this);
+	Thread receiveT(&Client::ReceiveData, this);
+
 	while (!game->wallGameOver())
 	{
-		game->draw();
+		drawT.launch();
 		game->input();
 
-		this->ReceiveData();
-		this->SendData();
+		receiveT.launch();
+		sendT.launch();
 		
 		Sleep(100);
 	}
+
+	drawT.wait();
+
+	system("cls");
+	if (game->winner() == "p1")
+		cout << "LOSER" << endl;
+	else if (game->winner() == "p2")
+		cout << "WINER" << endl;
+	else
+		cout << "DRAW" << endl;
 }
 
 inline void Client::SendData()
